@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AIDU – AI Disaster & Emergency Support Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Icons (Optional) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-dark: #050816;
+      --bg-card: rgba(9, 15, 35, 0.9);
+      --accent: #4f46e5;
+      --accent-soft: rgba(79, 70, 229, 0.45);
+      --accent-danger: #ff3b6b;
+      --accent-warning: #ffc857;
+      --accent-safe: #22c55e;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --border-soft: rgba(148, 163, 184, 0.3);
+      --shadow-soft: 0 24px 80px rgba(15, 23, 42, 0.95);
+      --radius-card: 1.5rem;
+      --radius-pill: 999px;
+      --transition-fast: 0.2s ease-out;
+      --transition-med: 0.35s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at top, #111827, #020617 55%);
+      color: var(--text-main);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Glow / particles background */
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      width: 360px;
+      height: 360px;
+      border-radius: 999px;
+      filter: blur(120px);
+      opacity: 0.6;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    body::before {
+      background: radial-gradient(circle, rgba(79, 70, 229, 0.9), transparent 60%);
+      top: -120px;
+      left: -80px;
+    }
+
+    body::after {
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.75), transparent 60%);
+      bottom: -160px;
+      right: -120px;
+    }
+
+    .noise-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.15;
+      mix-blend-mode: soft-light;
+      background-image: url("https://i.imgur.com/ww7vC6v.png");
+      z-index: -1;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px 18px 60px;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      margin-bottom: 14px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.3), transparent 35%),
+                  radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.25), transparent 40%),
+                  rgba(15, 23, 42, 0.9);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      backdrop-filter: blur(18px);
+      position: sticky;
+      top: 12px;
+      z-index: 10;
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: radial-gradient(circle at 30% 0, #22c55e, #22c55e 12%, #4f46e5 18%, #0f172a 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 20px;
+      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.7);
+    }
+
+    .logo-text-main {
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      font-size: 1.05rem;
+    }
+
+    .logo-text-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.9rem;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: var(--transition-fast);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+      border-color: rgba(148, 163, 184, 0.5);
+      background: radial-gradient(circle at top, rgba(79, 70, 229, 0.45), rgba(15, 23, 42, 0.9));
+    }
+
+    .nav-primary {
+      background: linear-gradient(to right, #4f46e5, #06b6d4);
+      color: white !important;
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.7);
+      border-color: rgba(191, 219, 254, 0.8) !important;
+    }
+
+    .nav-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 35px rgba(59, 130, 246, 0.9);
+    }
+
+    /* HERO */
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.5fr);
+      align-items: center;
+      gap: 22px;
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px 4px 4px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: radial-gradient(circle at left, rgba(34, 197, 94, 0.4), transparent 55%),
+                  rgba(15, 23, 42, 0.92);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .hero-tag span.badge-dot {
+      display: inline-flex;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #a7f3d0, #22c55e 50%, #14532d 80%);
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.9);
+      align-items: center;
+      justify-content: center;
+      color: #022c22;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 3.3vw, 3rem);
+      line-height: 1.18;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .hero-title span.highlight {
+      background: linear-gradient(to right, #4f46e5, #22c55e, #06b6d4);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 0.94rem;
+      color: var(--text-muted);
+      max-width: 540px;
+      margin-bottom: 18px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .pill {
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill i {
+      font-size: 0.8rem;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition-med);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #22c55e, #06b6d4);
+      box-shadow: 0 18px 36px rgba(59, 130, 246, 0.8);
+      border-color: rgba(191, 219, 254, 0.9);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px) translateX(1px);
+      box-shadow: 0 24px 50px rgba(37, 99, 235, 1);
+    }
+
+    .btn-ghost {
+      border-color: rgba(148, 163, 184, 0.7);
+      background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.65), rgba(15, 23, 42, 0.95));
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(248, 250, 252, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .hero-caption {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-caption span {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .hero-ai {
+      border-radius: 28px;
+      background: radial-gradient(circle at top, rgba(79, 70, 229, 0.6), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      box-shadow: var(--shadow-soft);
+      padding: 18px 16px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-ai-orbit {
+      position: absolute;
+      inset: -60px;
+      opacity: 0.32;
+      background:
+        radial-gradient(circle at 30% 10%, rgba(129, 140, 248, 0.5), transparent 55%),
+        radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.45), transparent 55%),
+        radial-gradient(circle at 10% 85%, rgba(52, 211, 153, 0.4), transparent 55%);
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .hero-ai-header {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      z-index: 1;
+    }
+
+    .hero-ai-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-ai-title span.dot-live {
+      display: inline-flex;
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #f97373, #dc2626 55%);
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.95);
+    }
+
+    .hero-ai-pulse {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border-radius: 999px;
+      padding: 4px 8px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-ai-screen {
+      position: relative;
+      z-index: 1;
+      border-radius: 20px;
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+
+    .hero-ai-line {
+      font-size: 0.78rem;
+      color: #e5e7eb;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .hero-ai-line i {
+      margin-top: 2px;
+      font-size: 0.75rem;
+      color: #a5b4fc;
+    }
+
+    .hero-ai-line span.label {
+      color: var(--text-muted);
+      min-width: 70px;
+      font-size: 0.75rem;
+    }
+
+    .hero-ai-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .hero-ai-chip {
+      font-size: 0.68rem;
+      border-radius: var(--radius-pill);
+      padding: 4px 10px;
+      background: rgba(30, 64, 175, 0.9);
+      border: 1px solid rgba(129, 140, 248, 0.9);
+      color: #e5e7eb;
+    }
+
+    .hero-ai-footer {
+      position: relative;
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .hero-ai-meter {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meter-bar {
+      width: 70px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 1);
+      overflow: hidden;
+      border: 1px solid rgba(55, 65, 81, 0.8);
+    }
+
+    .meter-fill {
+      width: 82%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(to right, #22c55e, #eab308, #f97316, #ef4444);
+      box-shadow: 0 0 14px rgba(248, 250, 252, 0.35);
+    }
+
+    /* SECTION WRAPPERS */
+
+    .section-title {
+      font-size: 1.3rem;
+      margin-bottom: 6px;
+      margin-top: 6px;
+    }
+
+    .section-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+
+    .tool-card {
+      border-radius: var(--radius-card);
+      padding: 14px 14px 12px;
+      background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.55), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: 0 16px 50px rgba(15, 23, 42, 0.9);
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+      transition: var(--transition-med);
+    }
+
+    .tool-card:before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at top, rgba(248, 250, 252, 0.14), transparent 60%);
+      opacity: 0;
+      transition: opacity var(--transition-med);
+    }
+
+    .tool-card:hover {
+      transform: translateY(-4px) translateX(2px);
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 1);
+    }
+
+    .tool-card:hover:before {
+      opacity: 1;
+    }
+
+    .tool-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      color: #a5b4fc;
+      box-shadow: 0 0 12px rgba(129, 140, 248, 0.6);
+    }
+
+    .tool-title {
+      font-size: 0.98rem;
+      margin-bottom: 4px;
+    }
+
+    .tool-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .tool-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 0.7rem;
+      margin-bottom: 6px;
+    }
+
+    .tool-tag {
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(191, 219, 254, 0.8);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+    }
+
+    .tool-link {
+      font-size: 0.78rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #dbeafe;
+      margin-top: 2px;
+    }
+
+    .tool-link i {
+      font-size: 0.8rem;
+    }
+
+    /* Forms / tools sections */
+
+    .tool-section {
+      border-radius: var(--radius-card);
+      padding: 18px 16px 16px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-section::before {
+      content: "";
+      position: absolute;
+      inset: -30%;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.3), transparent 65%);
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .tool-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tool-header-left h3 {
+      font-size: 1.02rem;
+    }
+
+    .tool-header-left p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      max-width: 420px;
+    }
+
+    .tool-header-right {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    .pill-soft {
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      margin-bottom: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill-soft i {
+      font-size: 0.75rem;
+      color: #a5b4fc;
+    }
+
+    .tool-body {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .tool-body.single {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .form-grid.full {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.8rem;
+    }
+
+    .field label {
+      color: #e5e7eb;
+    }
+
+    .field small {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    select,
+    textarea {
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 7px 9px;
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.8rem;
+      outline: none;
+      transition: var(--transition-fast);
+      resize: vertical;
+      min-height: 34px;
+    }
+
+    textarea {
+      min-height: 60px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: rgba(129, 140, 248, 1);
+      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.6);
+    }
+
+    .checkbox-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .checkbox-item input {
+      margin-top: 3px;
+      accent-color: #4f46e5;
+    }
+
+    .btn-small {
+      padding: 7px 12px;
+      font-size: 0.78rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: linear-gradient(to right, #4f46e5, #06b6d4);
+      color: white;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      transition: var(--transition-fast);
+    }
+
+    .btn-small:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.9);
+    }
+
+    .result-panel {
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(148, 163, 184, 0.65);
+      font-size: 0.8rem;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .result-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .severity-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .severity-high {
+      background: rgba(248, 113, 113, 0.12);
+      border: 1px solid rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+
+    .severity-medium {
+      background: rgba(252, 211, 77, 0.1);
+      border: 1px solid rgba(252, 211, 77, 0.9);
+      color: #fef3c7;
+    }
+
+    .severity-low {
+      background: rgba(52, 211, 153, 0.13);
+      border: 1px solid rgba(52, 211, 153, 0.85);
+      color: #bbf7d0;
+    }
+
+    .result-main {
+      margin-top: 4px;
+      color: #e5e7eb;
+    }
+
+    .result-note {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .badge-soft {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.75rem;
+      background: rgba(15, 23, 42, 1);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      margin-top: 4px;
+    }
+
+    .badge-soft i {
+      font-size: 0.8rem;
+      color: #22c55e;
+    }
+
+    /* Risk level colors */
+
+    .risk-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    .risk-low {
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.9);
+      color: #bbf7d0;
+    }
+
+    .risk-moderate {
+      background: rgba(250, 204, 21, 0.12);
+      border: 1px solid rgba(250, 204, 21, 0.9);
+      color: #fef3c7;
+    }
+
+    .risk-high {
+      background: rgba(248, 113, 113, 0.12);
+      border: 1px solid rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+
+    /* Emergency card */
+
+    .card-preview {
+      border-radius: 18px;
+      padding: 10px 12px;
+      background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.7), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(191, 219, 254, 0.9);
+      font-size: 0.78rem;
+      max-width: 320px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 1);
+    }
+
+    .card-preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .card-chip {
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(191, 219, 254, 0.9);
+    }
+
+    .card-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 6px;
+      align-items: center;
+    }
+
+    .card-field {
+      margin-bottom: 4px;
+    }
+
+    .card-field span.label {
+      font-size: 0.7rem;
+      color: #cbd5f5;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .card-field div.value {
+      font-size: 0.8rem;
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .qr-box {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .qr-box img {
+      width: 84px;
+      height: 84px;
+      border-radius: 12px;
+      border: 1px solid rgba(248, 250, 252, 0.8);
+      background: #020617;
+    }
+
+    .card-footer {
+      font-size: 0.7rem;
+      color: #e5e7eb;
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Panic button */
+
+    .panic-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .panic-button {
+      border-radius: 999px;
+      padding: 9px 18px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      background: radial-gradient(circle at top, #ef4444, #b91c1c 65%);
+      border: 1px solid rgba(254, 226, 226, 0.9);
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 18px 45px rgba(239, 68, 68, 0.9);
+      transition: var(--transition-med);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .panic-button i {
+      font-size: 1.1rem;
+    }
+
+    .panic-button:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 22px 60px rgba(248, 113, 113, 1);
+    }
+
+    .panic-note {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      max-width: 360px;
+    }
+
+    /* Footer */
+
+    footer {
+      margin-top: 28px;
+      padding: 12px 6px 4px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    footer span {
+      color: #e5e7eb;
+    }
+
+    /* Responsive */
+
+    @media (max-width: 960px) {
+      .hero {
+        grid-template-columns: minmax(0, 1.05fr);
+      }
+      .hero-ai {
+        margin-top: 10px;
+      }
+      .tool-body {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        border-radius: 22px;
+      }
+      .nav-links {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .hero-title {
+        font-size: 1.7rem;
+      }
+      .card-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .form-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise-layer"></div>
+
+  <div class="page">
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="logo-wrap">
+        <div class="logo-badge">A</div>
+        <div>
+          <div class="logo-text-main">AIDU</div>
+          <div class="logo-text-sub">AI disaster support</div>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="#tools">Tools</a>
+        <a href="#symptom-section">Health</a>
+        <a href="#disaster-section">Disaster</a>
+        <a href="#card-section">Emergency Card</a>
+        <a href="#panic-section" class="nav-primary"><i class="fa-solid fa-bell"></i> Panic</a>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div>
+        <div class="hero-tag">
+          <span class="badge-dot"><i class="fa-solid fa-wave-square"></i></span>
+          <span>AI-guided support for disasters & emergencies</span>
+        </div>
+        <h1 class="hero-title">
+          Smart help when <span class="highlight">every second</span> matters.
+        </h1>
+        <p class="hero-subtitle">
+          AIDU (Artificial Intelligence Disaster Utility) gives instant, AI-style guidance for health emergencies,
+          natural disasters, SOS alerts, and safety planning. Designed for students, families, and communities.
+        </p>
+
+        <div class="hero-badges">
+          <div class="pill"><i class="fa-solid fa-microchip"></i> AI-style logic</div>
+          <div class="pill"><i class="fa-solid fa-shield-heart"></i> First-aid support</div>
+          <div class="pill"><i class="fa-solid fa-cloud-bolt"></i> Disaster readiness</div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="scrollToId('tools')">
+            <i class="fa-solid fa-rocket"></i> Start using tools
+          </button>
+          <button class="btn btn-ghost" onclick="scrollToId('panic-section')">
+            <i class="fa-solid fa-bell"></i> Go to Panic Button
+          </button>
+        </div>
+
+        <div class="hero-caption">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>Important:</span> This website offers AI assistance but is not a replacement for doctors,
+          police, or fire services. Always call local emergency numbers first.
+        </div>
+      </div>
+
+      <!-- AI preview -->
+      <aside class="hero-ai" aria-label="AI status preview card">
+        <div class="hero-ai-orbit"></div>
+
+        <div class="hero-ai-header">
+          <div class="hero-ai-title">
+            <span class="dot-live"></span>
+            <span>AIDU Risk Engine</span>
+          </div>
+          <div class="hero-ai-pulse">
+            <i class="fa-solid fa-signal"></i>
+            Scanning hazards…
+          </div>
+        </div>
+
+        <div class="hero-ai-screen">
+          <div class="hero-ai-line">
+            <i class="fa-solid fa-location-dot"></i>
+            <div>
+              <span class="label">Sample region</span><br />
+              Coastal city, high humidity, past 3 days of heavy rain detected.
+            </div>
+          </div>
+          <div class="hero-ai-line">
+            <i class="fa-solid fa-cloud-rain"></i>
+            <div>
+              <span class="label">Flood risk</span><br />
+              Elevated. Keep emergency kits ready &amp; charge phones and power banks.
+            </div>
+          </div>
+          <div class="hero-ai-tags">
+            <div class="hero-ai-chip">Auto-check: safe routes</div>
+            <div class="hero-ai-chip">Offline safety tips cached</div>
+          </div>
+        </div>
+
+        <div class="hero-ai-footer">
+          <div class="hero-ai-meter">
+            Hazard index
+            <div class="meter-bar"><div class="meter-fill"></div></div>
+          </div>
+          <div>Last updated: <span id="aiTime">now</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- QUICK TOOLS OVERVIEW -->
+    <section id="tools">
+      <h2 class="section-title">AI Assistance Tools</h2>
+      <p class="section-sub">
+        Choose a tool below – AIDU uses rule-based AI logic (in JavaScript) to provide instant, situation-aware help.
+      </p>
+
+      <div class="card-grid">
+        <div class="tool-card" onclick="scrollToId('symptom-section')">
+          <div class="tool-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+          <div class="tool-title">Emergency Health Symptom Checker</div>
+          <div class="tool-desc">
+            Describe what the person feels and get an instant severity estimate with first-aid guidance.
+          </div>
+          <div class="tool-tags">
+            <span class="tool-tag">AI triage</span>
+            <span class="tool-tag">First aid</span>
+          </div>
+          <div class="tool-link">Open health tool <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <div class="tool-card" onclick="scrollToId('disaster-section')">
+          <div class="tool-icon"><i class="fa-solid fa-house-flood-water"></i></div>
+          <div class="tool-title">Disaster Risk & Safety Planner</div>
+          <div class="tool-desc">
+            Combine location + weather to estimate flood / heat / storm risk and get a safety checklist.
+          </div>
+          <div class="tool-tags">
+            <span class="tool-tag">Floods</span>
+            <span class="tool-tag">Heatwaves</span>
+            <span class="tool-tag">Cyclones</span>
+          </div>
+          <div class="tool-link">Open disaster tool <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <div class="tool-card" onclick="scrollToId('card-section')">
+          <div class="tool-icon"><i class="fa-solid fa-id-card-clip"></i></div>
+          <div class="tool-title">Emergency ID Card & SOS Generator</div>
+          <div class="tool-desc">
+            Generate a digital emergency card and a ready-to-send SOS email template with one click.
+          </div>
+          <div class="tool-tags">
+            <span class="tool-tag">QR card</span>
+            <span class="tool-tag">Panic button</span>
+          </div>
+          <div class="tool-link">Create card & SOS <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SYMPTOM CHECKER -->
+    <section id="symptom-section" class="tool-section">
+      <div class="tool-header">
+        <div class="tool-header-left">
+          <h3><i class="fa-solid fa-heart-pulse"></i> AI Emergency Health Symptom Checker</h3>
+          <p>
+            Not a doctor – but a smart first filter. Select what the person is feeling and AIDU will estimate
+            severity (High / Medium / Low) and list immediate steps.
+          </p>
+        </div>
+        <div class="tool-header-right">
+          <div class="pill-soft">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            Always call an ambulance for serious pain, breathing issues or unconsciousness.
+          </div>
+          <div>Powered by rule-based AI in JavaScript.</div>
+        </div>
+      </div>
+
+      <div class="tool-body">
+        <form id="symptom-form">
+          <div class="form-grid">
+            <div class="field">
+              <label>Age group of the person</label>
+              <select id="ageGroup" required>
+                <option value="">Select age group</option>
+                <option value="child">Child (0–12)</option>
+                <option value="teen">Teen (13–19)</option>
+                <option value="adult">Adult (20–59)</option>
+                <option value="elder">Elder (60+)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Condition started</label>
+              <select id="onset" required>
+                <option value="">Select duration</option>
+                <option value="sudden">Suddenly (within minutes)</option>
+                <option value="hours">In the last few hours</option>
+                <option value="day">Since yesterday</option>
+                <option value="week">Since many days</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>What are the visible symptoms? (select all that apply)</label>
+            <div class="checkbox-row">
+              <label class="checkbox-item">
+                <input type="checkbox" value="chestPain" />
+                <span>Severe chest pain / pressure</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" value="breathing" />
+                <span>Difficulty breathing / very fast breathing</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" value="unconscious" />
+                <span>Unconscious / not responding properly</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" value="bleeding" />
+                <span>Heavy bleeding that does not stop</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" value="fever" />
+                <span>High fever, shivering, confusion</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" value="injury" />
+                <span>Bone injury / suspected fracture</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" value="snake" />
+                <span>Snake or poisonous insect bite</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" value="mild" />
+                <span>Mild headache, small cut, minor discomfort only</span>
+              </label>
+            </div>
+            <small>AIDU only guides you. For any doubt – treat as serious and call your local emergency number.</small>
+          </div>
+
+          <button type="submit" class="btn-small">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Analyse symptoms
+          </button>
+        </form>
+
+        <div class="result-panel" id="symptom-result">
+          <div class="result-title">AI Assessment</div>
+          <div class="result-main">
+            Choose age and symptoms, then click “Analyse symptoms” to see the AI result here.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DISASTER RISK -->
+    <section id="disaster-section" class="tool-section">
+      <div class="tool-header">
+        <div class="tool-header-left">
+          <h3><i class="fa-solid fa-house-flood-water"></i> AI Disaster Risk & Safety Planner</h3>
+          <p>
+            Enter simple information about your area. AIDU combines it like an AI model and tags your risk as
+            Low, Moderate, or High – with safety actions.
+          </p>
+        </div>
+        <div class="tool-header-right">
+          <div class="pill-soft">
+            <i class="fa-solid fa-cloud-sun-rain"></i>
+            Uses rule-based logic, not real-time official weather data.
+          </div>
+          <div>Always follow government alerts and news.</div>
+        </div>
+      </div>
+
+      <div class="tool-body">
+        <form id="disaster-form">
+          <div class="form-grid">
+            <div class="field">
+              <label>Your area type</label>
+              <select id="areaType" required>
+                <option value="">Select area</option>
+                <option value="coastal">Coastal / near sea</option>
+                <option value="river">Near river / low-lying</option>
+                <option value="urban">City / urban</option>
+                <option value="rural">Rural village</option>
+                <option value="hills">Hills / landslide-prone</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Current rainfall condition</label>
+              <select id="rainfall" required>
+                <option value="">Select rainfall</option>
+                <option value="none">No rain / very light</option>
+                <option value="moderate">Moderate rain</option>
+                <option value="heavy">Heavy rain</option>
+                <option value="extreme">Very heavy / continuous for many days</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Temperature / heat</label>
+              <select id="heat" required>
+                <option value="">Select heat level</option>
+                <option value="cool">Cool / normal</option>
+                <option value="warm">Warm</option>
+                <option value="hot">Hot (30–38°C)</option>
+                <option value="veryhot">Very hot / heatwave (39°C+)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Wind condition</label>
+              <select id="wind" required>
+                <option value="">Select wind</option>
+                <option value="calm">Calm / normal</option>
+                <option value="breezy">Breezy</option>
+                <option value="strong">Strong winds</option>
+                <option value="storm">Storm / cyclone-like winds</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Housing strength</label>
+              <select id="house" required>
+                <option value="">Select housing type</option>
+                <option value="strong">Strong building (concrete)</option>
+                <option value="medium">Mixed / average quality</option>
+                <option value="weak">Kutcha / tin sheets / weak house</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Any of these present?</label>
+              <div class="checkbox-row" style="grid-template-columns: minmax(0, 1fr);">
+                <label class="checkbox-item">
+                  <input type="checkbox" id="nearWater" />
+                  <span>Very close to water body / drain / old tree / steep slope</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-small">
+            <i class="fa-solid fa-satellite-dish"></i> Calculate risk & safety plan
+          </button>
+        </form>
+
+        <div class="result-panel" id="disaster-result">
+          <div class="result-title">AI Disaster Summary</div>
+          <div class="result-main">
+            Fill the details and click the button to see your risk level and a tailored safety checklist here.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAFETY GUIDE (simple single tool) -->
+    <section class="tool-section">
+      <div class="tool-header">
+        <div class="tool-header-left">
+          <h3><i class="fa-solid fa-list-check"></i> Instant AI Safety Guide Generator</h3>
+          <p>
+            Pick a situation and AIDU will generate a short, clear safety guide for you and your family –
+            before, during, and after the event.
+          </p>
+        </div>
+        <div class="tool-header-right">
+          <div class="pill-soft">
+            <i class="fa-solid fa-children"></i>
+            Designed to be easy to read for school students.
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-body single">
+        <div class="field">
+          <label>Select a situation</label>
+          <select id="safetyScenario">
+            <option value="">Choose situation</option>
+            <option value="flood">Heavy flood / dam water release</option>
+            <option value="earthquake">Earthquake</option>
+            <option value="fire">Fire in building / kitchen</option>
+            <option value="heatwave">Extreme heat / heatwave</option>
+            <option value="road">Serious road accident</option>
+            <option value="snake">Snake inside house / snake bite</option>
+          </select>
+          <button class="btn-small" style="margin-top:8px;" onclick="generateSafety(event)">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate safety guide
+          </button>
+        </div>
+
+        <div class="result-panel" id="safety-result" style="margin-top:10px;">
+          <div class="result-title">Safety guide</div>
+          <div class="result-main">
+            Choose any situation and click the button – your custom AI safety guide will appear here.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EMERGENCY CARD & SOS -->
+    <section id="card-section" class="tool-section">
+      <div class="tool-header">
+        <div class="tool-header-left">
+          <h3><i class="fa-solid fa-id-card-clip"></i> Emergency ID Card & QR Code</h3>
+          <p>
+            Create a digital emergency ID card that shows your name, blood group, conditions, and a QR code
+            linking to your emergency data. You can screenshot it or print it.
+          </p>
+        </div>
+        <div class="tool-header-right">
+          <div class="pill-soft">
+            <i class="fa-solid fa-qrcode"></i>
+            Generated using simple QR image API; data stays inside your browser.
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-body">
+        <form id="card-form">
+          <div class="form-grid">
+            <div class="field">
+              <label>Your full name</label>
+              <input id="cardName" type="text" required placeholder="Example: Karthik R" />
+            </div>
+            <div class="field">
+              <label>Age</label>
+              <input id="cardAge" type="number" min="1" max="120" required placeholder="18" />
+            </div>
+            <div class="field">
+              <label>Blood group</label>
+              <select id="cardBlood" required>
+                <option value="">Select blood group</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Emergency contact number</label>
+              <input id="cardContact" type="text" required placeholder="Parent / guardian number" />
+            </div>
+            <div class="field">
+              <label>Medical conditions / allergies</label>
+              <textarea id="cardConditions" placeholder="Asthma, allergy to penicillin, etc."></textarea>
+            </div>
+            <div class="field">
+              <label>Home city / area</label>
+              <input id="cardCity" type="text" placeholder="City, State" />
+            </div>
+          </div>
+
+          <button type="submit" class="btn-small">
+            <i class="fa-solid fa-id-card-clip"></i> Generate emergency card
+          </button>
+        </form>
+
+        <div class="card-preview" id="card-preview">
+          <div class="card-preview-header">
+            <div class="card-title">EMERGENCY ID</div>
+            <div class="card-chip"><i class="fa-solid fa-heart-pulse"></i> AIDU SMART CARD</div>
+          </div>
+          <div class="card-body">
+            <div>
+              <div class="card-field">
+                <span class="label">Name</span>
+                <div class="value" id="cardPreviewName">Your name here</div>
+              </div>
+              <div class="card-field">
+                <span class="label">Age / Blood group</span>
+                <div class="value" id="cardPreviewAge">– / –</div>
+              </div>
+              <div class="card-field">
+                <span class="label">Emergency contact</span>
+                <div class="value" id="cardPreviewContact">–</div>
+              </div>
+              <div class="card-field">
+                <span class="label">Conditions / allergies</span>
+                <div class="value" id="cardPreviewConditions">None reported</div>
+              </div>
+              <div class="card-field">
+                <span class="label">City / area</span>
+                <div class="value" id="cardPreviewCity">–</div>
+              </div>
+            </div>
+            <div class="qr-box">
+              <img id="cardQRCode" alt="QR code for emergency data"
+                src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AIDU Emergency Card" />
+            </div>
+          </div>
+          <div class="card-footer">
+            <span><i class="fa-solid fa-phone"></i> In emergency, call local ambulance / 108</span>
+            <span>AIDU • v1.0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANIC BUTTON & SOS EMAIL -->
+    <section id="panic-section" class="tool-section">
+      <div class="tool-header">
+        <div class="tool-header-left">
+          <h3><i class="fa-solid fa-bell"></i> Panic Button & SOS Email Generator</h3>
+          <p>
+            In a real emergency, press the Panic Button. AIDU will prepare an email message with your details and
+            what happened. You can send it quickly to a trusted family member, teacher or local official.
+          </p>
+        </div>
+        <div class="tool-header-right">
+          <div class="pill-soft">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            This does not automatically contact police/ambulance. You must send / call yourself.
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-body">
+        <form id="panic-form">
+          <div class="form-grid full">
+            <div class="field">
+              <label>Your name</label>
+              <input id="panicName" type="text" placeholder="Your full name" required />
+            </div>
+            <div class="field">
+              <label>Emergency contact email (receiver)</label>
+              <input id="panicEmail" type="email" placeholder="Teacher / parent / officer email" required />
+            </div>
+            <div class="field">
+              <label>Your location (as exact as possible)</label>
+              <input id="panicLocation" type="text" placeholder="Landmark, street, city" required />
+            </div>
+            <div class="field">
+              <label>Type of emergency</label>
+              <select id="panicType" required>
+                <option value="">Select emergency</option>
+                <option value="Health emergency">Health emergency</option>
+                <option value="Fire">Fire</option>
+                <option value="Flood">Flood / water rising</option>
+                <option value="Accident">Road / vehicle accident</option>
+                <option value="Violence">Violence / attack</option>
+                <option value="Other">Other urgent problem</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Short description (what is happening?)</label>
+              <textarea id="panicMsg" placeholder="Write very short: who is hurt, what happened, what you need urgently." required></textarea>
+            </div>
+          </div>
+        </form>
+
+        <div class="panic-wrap">
+          <button class="panic-button" onclick="triggerPanic()">
+            <i class="fa-solid fa-bell"></i> Panic Button
+          </button>
+          <p class="panic-note">
+            After you click, your email app will open with a ready-made SOS message. Check quickly and press
+            <strong>Send</strong>. At the same time, try to call ambulance / police / fire services by phone.
+          </p>
+          <div class="badge-soft">
+            <i class="fa-solid fa-circle-info"></i>
+            Tip for judges: This shows how AI can speed up human response in disasters by removing typing delays.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      Built for an AI innovation contest • <span>AIDU – Artificial Intelligence Disaster Utility</span> •
+      This is an educational aid, not a medical or legal authority.
+    </footer>
+  </div>
+
+  <script>
+    // Smooth scroll helper
+    function scrollToId(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    // Update AI time
+    function updateAiTime() {
+      const el = document.getElementById("aiTime");
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, "0");
+      const mm = String(now.getMinutes()).padStart(2, "0");
+      el.textContent = hh + ":" + mm;
+    }
+    updateAiTime();
+    setInterval(updateAiTime, 60_000);
+
+    // SYMPTOM CHECKER LOGIC
+    const symptomForm = document.getElementById("symptom-form");
+    const symptomResult = document.getElementById("symptom-result");
+
+    symptomForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const age = document.getElementById("ageGroup").value;
+      const onset = document.getElementById("onset").value;
+      const checkboxes = symptomForm.querySelectorAll('input[type="checkbox"]:checked');
+
+      if (!age || !onset) {
+        alert("Please select age group and when the problem started.");
+        return;
+      }
+      if (checkboxes.length === 0) {
+        alert("Please select at least one symptom.");
+        return;
+      }
+
+      const selected = Array.from(checkboxes).map((cb) => cb.value);
+
+      let severity = "low";
+      let title = "LOW severity (monitor and basic care).";
+      let steps = [];
+      let note =
+        "If the person becomes worse at any time, treat this as an emergency and go to the nearest hospital.";
+
+      const has = (value) => selected.includes(value);
+
+      // High severity conditions
+      if (
+        has("unconscious") ||
+        (has("chestPain") && has("breathing")) ||
+        has("bleeding") ||
+        has("snake")
+      ) {
+        severity = "high";
+        title = "HIGH severity – treat as emergency. Call ambulance immediately.";
+        steps.push(
+          "Call the local emergency number / ambulance immediately.",
+          "Do not leave the person alone. Keep them lying on their side if unconscious and breathing.",
+          "If there is heavy bleeding, apply firm pressure with a clean cloth.",
+          "Do not give food or drink in serious chest pain or unconsciousness.",
+          "For snake bite: keep the bitten limb still and at heart level. Do not cut or suck the wound."
+        );
+      } else if (
+        has("fever") ||
+        has("injury") ||
+        onset === "sudden" ||
+        onset === "hours"
+      ) {
+        severity = "medium";
+        title = "MEDIUM severity – needs a doctor soon (today).";
+        steps.push(
+          "Monitor the person closely for any worsening signs (confusion, severe pain, breathing issues).",
+          "Visit a qualified doctor or hospital as soon as possible.",
+          "Give only medicines that are known to be safe and prescribed earlier.",
+          "Keep the person hydrated unless a doctor said otherwise."
+        );
+      } else if (has("mild")) {
+        severity = "low";
+        title = "LOW severity – seems minor at the moment.";
+        steps.push(
+          "Let the person rest and drink water.",
+          "Observe for the next few hours. If pain or fever increases, visit a doctor.",
+          "Avoid self-medicating with strong drugs without medical advice."
+        );
+      }
+
+      // Adjust note for age / onset
+      if (age === "child" || age === "elder") {
+        note =
+          "Because this is a child or elder person, do not wait too long. If in doubt, always see a doctor quickly.";
+      }
+
+      let severityClass = "severity-low";
+      if (severity === "medium") severityClass = "severity-medium";
+      if (severity === "high") severityClass = "severity-high";
+
+      symptomResult.innerHTML = `
+        <div class="result-title">AI Assessment</div>
+        <div class="severity-tag ${severityClass}">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          ${title}
+        </div>
+        <div class="result-main">
+          <strong>Immediate steps:</strong>
+          <ul style="margin-top:6px; padding-left:18px;">
+            ${steps.map((s) => `<li>${s}</li>`).join("")}
+          </ul>
+        </div>
+        <div class="result-note">
+          ⚠️ AIDU does not replace a doctor or emergency services. Use it to act faster while you arrange real help.
+        </div>
+      `;
+    });
+
+    // DISASTER RISK LOGIC
+    const disasterForm = document.getElementById("disaster-form");
+    const disasterResult = document.getElementById("disaster-result");
+
+    disasterForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const area = document.getElementById("areaType").value;
+      const rain = document.getElementById("rainfall").value;
+      const heat = document.getElementById("heat").value;
+      const wind = document.getElementById("wind").value;
+      const house = document.getElementById("house").value;
+      const nearWater = document.getElementById("nearWater").checked;
+
+      if (!area || !rain || !heat || !wind || !house) {
+        alert("Please fill all the fields in the disaster form.");
+        return;
+      }
+
+      let score = 0;
+      // Area
+      if (area === "coastal") score += 2;
+      if (area === "river") score += 2;
+      if (area === "hills") score += 2;
+      if (area === "urban") score += 1;
+
+      // Rain
+      if (rain === "moderate") score += 1;
+      if (rain === "heavy") score += 2;
+      if (rain === "extreme") score += 3;
+
+      // Heat
+      if (heat === "hot") score += 1;
+      if (heat === "veryhot") score += 2;
+
+      // Wind
+      if (wind === "strong") score += 2;
+      if (wind === "storm") score += 3;
+
+      // House
+      if (house === "medium") score += 1;
+      if (house === "weak") score += 2;
+
+      if (nearWater) score += 2;
+
+      let riskLevel = "Low";
+      let riskClass = "risk-low";
+      let message =
+        "Current risk looks relatively low, but stay alert and keep basic supplies ready.";
+
+      if (score >= 5 && score <= 8) {
+        riskLevel = "Moderate";
+        riskClass = "risk-moderate";
+        message =
+          "Risk appears moderate. You should prepare seriously, follow local news, and avoid unnecessary travel in bad weather.";
+      } else if (score > 8) {
+        riskLevel = "High";
+        riskClass = "risk-high";
+        message =
+          "Risk appears high. Flooding, heatstroke, or storm damage is more likely. You must follow safety instructions strictly and be ready to evacuate if told.";
+      }
+
+      // Safety checklist based on main risk
+      const safetyList = [];
+
+      if (rain === "heavy" || rain === "extreme" || area === "river") {
+        safetyList.push(
+          "Move important documents, mobile, and charger to a higher, safe place.",
+          "Do not try to walk or drive through moving flood water.",
+          "Keep drinking water in closed containers (flood water can contaminate supplies)."
+        );
+      }
+      if (heat === "veryhot") {
+        safetyList.push(
+          "Avoid going out during afternoon. Use umbrella / cap if you must go.",
+          "Drink plenty of water, ORS, or homemade lemonade. Avoid alcohol.",
+          "Check on elders, infants and people with health problems frequently."
+        );
+      }
+      if (wind === "storm" || wind === "strong") {
+        safetyList.push(
+          "Stay away from weak trees, electric poles and tin sheet roofs.",
+          "Close all doors and windows securely. Remove loose items from balconies.",
+          "Keep a small emergency bag with torch, power bank, water, and some snacks."
+        );
+      }
+      if (area === "hills") {
+        safetyList.push(
+          "Avoid standing near steep slopes or under big rocks after heavy rain.",
+          "Look for cracks in the ground and walls, and report them to local authorities."
+        );
+      }
+      if (safetyList.length === 0) {
+        safetyList.push(
+          "Keep a small emergency kit ready (torch, whistle, power bank, water, first-aid).",
+          "Save important phone numbers (family, local hospital, police, fire service) in your mobile."
+        );
+      }
+
+      disasterResult.innerHTML = `
+        <div class="result-title">AI Disaster Summary</div>
+        <div class="risk-pill ${riskClass}">
+          <i class="fa-solid fa-cloud-bolt"></i>
+          Hazard level: <strong>${riskLevel.toUpperCase()}</strong> (score ${score})
+        </div>
+        <div class="result-main" style="margin-top:6px;">
+          ${message}
+          <br/><br/>
+          <strong>Your safety checklist:</strong>
+          <ul style="margin-top:6px; padding-left:18px;">
+            ${safetyList.map((item) => `<li>${item}</li>`).join("")}
+          </ul>
+        </div>
+        <div class="result-note">
+          ⛑️ AIDU gives a quick AI estimate only. Always listen to official weather forecasts, disaster management departments and government alerts.
+        </div>
+      `;
+    });
+
+    // SAFETY GUIDE GENERATOR
+    const safetyResult = document.getElementById("safety-result");
+
+    function generateSafety(e) {
+      if (e) e.preventDefault();
+      const scenario = document.getElementById("safetyScenario").value;
+      if (!scenario) {
+        alert("Please select a situation.");
+        return;
+      }
+
+      const guides = {
+        flood: {
+          title: "Flood / Dam Release Safety Guide",
+          items: [
+            "Before heavy rain: Move documents, school certificates, and important books to the highest shelf.",
+            "Prepare: Keep water, dry food, torch, power bank, and basic medicines in one emergency bag.",
+            "During flood: Do not play or walk in flood water – it can hide open drains and wires.",
+            "Never touch electric switches with wet hands or while standing in water.",
+            "Listen to local officials. If they say evacuate, leave early instead of waiting for more water.",
+          ],
+        },
+        earthquake: {
+          title: "Earthquake Safety Guide",
+          items: [
+            "During shaking: Drop to the ground, cover your head and neck under a strong table, and hold on.",
+            "Stay away from windows, cupboards, or things that can fall.",
+            "Do not rush to stairs or run outside during strong shaking.",
+            "After shaking stops: Go outside carefully, using stairs (never use lift).",
+            "Meet your family at a decided safe open space and stay away from damaged buildings.",
+          ],
+        },
+        fire: {
+          title: "Fire / Kitchen Blast Safety Guide",
+          items: [
+            "If your clothes catch fire: Stop, drop to the ground, and roll to put out the flames.",
+            "Never throw water on burning oil in the kitchen – cover the pan with a metal lid or thick cloth.",
+            "If there is heavy smoke, stay low and crawl; smoke rises upward.",
+            "Switch off gas and electricity only if it is safe. Do not take big risks.",
+            "Call the fire service immediately and shout to alert neighbours.",
+          ],
+        },
+        heatwave: {
+          title: "Extreme Heat / Heatwave Safety Guide",
+          items: [
+            "Avoid going out between 11 a.m. and 4 p.m. unless it is really necessary.",
+            "Drink water frequently even if you are not feeling thirsty.",
+            "Wear light, loose cotton clothes and use cap/umbrella outside.",
+            "Never leave children or pets alone in parked vehicles.",
+            "If someone has dizziness, confusion, or very high body temperature, move them to shade, cool them with wet cloths, and call a doctor.",
+          ],
+        },
+        road: {
+          title: "Serious Road Accident Safety Guide",
+          items: [
+            "First ensure your own safety before helping others.",
+            "Do not move a severely injured person unless there is fire or immediate danger.",
+            "Call ambulance and police with correct location description.",
+            "If there is bleeding, press gently with clean cloth or bandage.",
+            "Note vehicle number and witness details to help later investigation.",
+          ],
+        },
+        snake: {
+          title: "Snake in House / Snake Bite Safety Guide",
+          items: [
+            "If you see a snake: Stay calm. Do not try to catch or kill it.",
+            "Move people and pets away and close the room if possible.",
+            "Call local snake rescue / forest department if available.",
+            "In case of bite: Keep the person calm; movement spreads venom faster.",
+            "Do not cut, suck, or tie very tight bands around the wound; instead, keep the bitten part still and at heart level and reach a hospital immediately.",
+          ],
+        },
+      };
+
+      const guide = guides[scenario];
+      safetyResult.innerHTML = `
+        <div class="result-title">Safety guide</div>
+        <div class="result-main">
+          <strong>${guide.title}</strong>
+          <ul style="margin-top:6px; padding-left:18px;">
+            ${guide.items.map((item) => `<li>${item}</li>`).join("")}
+          </ul>
+        </div>
+        <div class="result-note">
+          ✅ You can read this aloud in class, print it as a poster, or share in your community WhatsApp groups.
+        </div>
+      `;
+    }
+
+    // EMERGENCY CARD GENERATOR
+    const cardForm = document.getElementById("card-form");
+
+    cardForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("cardName").value.trim();
+      const age = document.getElementById("cardAge").value.trim();
+      const blood = document.getElementById("cardBlood").value;
+      const contact = document.getElementById("cardContact").value.trim();
+      const cond = document.getElementById("cardConditions").value.trim();
+      const city = document.getElementById("cardCity").value.trim();
+
+      if (!name || !age || !blood || !contact) {
+        alert("Please fill name, age, blood group and emergency contact.");
+        return;
+      }
+
+      document.getElementById("cardPreviewName").textContent = name;
+      document.getElementById("cardPreviewAge").textContent = age + " yrs • " + blood;
+      document.getElementById("cardPreviewContact").textContent = contact;
+      document.getElementById("cardPreviewConditions").textContent =
+        cond || "None reported";
+      document.getElementById("cardPreviewCity").textContent = city || "—";
+
+      const dataObj = {
+        name,
+        age,
+        blood,
+        contact,
+        conditions: cond,
+        city,
+      };
+
+      const qrData = "AIDU Emergency Card :: " + JSON.stringify(dataObj);
+      const encoded = encodeURIComponent(qrData);
+      const url =
+        "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encoded;
+
+      document.getElementById("cardQRCode").src = url;
+    });
+
+    // PANIC BUTTON LOGIC
+    function triggerPanic() {
+      const name = document.getElementById("panicName").value.trim();
+      const email = document.getElementById("panicEmail").value.trim();
+      const location = document.getElementById("panicLocation").value.trim();
+      const type = document.getElementById("panicType").value;
+      const msg = document.getElementById("panicMsg").value.trim();
+
+      if (!name || !email || !location || !type || !msg) {
+        alert("Please fill all panic form fields before pressing the panic button.");
+        return;
+      }
+
+      const subject = encodeURIComponent("SOS – " + type + " – " + name);
+      const bodyLines = [
+        "This is an automatic SOS message generated using AIDU (AI Disaster Utility).",
+        "",
+        "Name of sender: " + name,
+        "Type of emergency: " + type,
+        "Location: " + location,
+        "",
+        "Short description of what is happening:",
+        msg,
+        "",
+        "Please treat this as urgent and respond as quickly as possible.",
+      ];
+
+      const body = encodeURIComponent(bodyLines.join("\n"));
+      const mailto = `mailto:${email}?subject=${subject}&body=${body}`;
+
+      window.location.href = mailto;
+    }
+  </script>
+</body>
+</html>
